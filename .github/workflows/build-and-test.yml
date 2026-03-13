@@ -24,6 +24,23 @@ jobs:
           cache: true
       - name: build application
         run: make build-cross-platform
+      - name: package nodeadm binaries
+        run: |
+          mkdir -p dist
+          tar -C _bin/amd64 -czf dist/nodeadm-linux-amd64.tar.gz nodeadm
+          tar -C _bin/arm64 -czf dist/nodeadm-linux-arm64.tar.gz nodeadm
+          sha256sum dist/nodeadm-linux-amd64.tar.gz > dist/nodeadm-linux-amd64.tar.gz.sha256
+          sha256sum dist/nodeadm-linux-arm64.tar.gz > dist/nodeadm-linux-arm64.tar.gz.sha256
+      - name: upload nodeadm artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodeadm-linux-binaries-${{ github.sha }}
+          path: |
+            dist/nodeadm-linux-amd64.tar.gz
+            dist/nodeadm-linux-amd64.tar.gz.sha256
+            dist/nodeadm-linux-arm64.tar.gz
+            dist/nodeadm-linux-arm64.tar.gz.sha256
+          retention-days: 14
   test:
     name: unit-test
     runs-on: ubuntu-latest
